@@ -13,7 +13,8 @@ import java.util.stream.Collectors;
 public class SimpleVisitor extends HerculesBaseVisitor<Object> {
 
     private final Map<String, @Nullable Object> variables = new Hashtable<>();
-    private final Map<String, HerculesParser.BlockContext> methods = new Hashtable<>();
+    private final List<String> finalVariables = new ArrayList<>();
+    private final List<String> swallowingVariables = new ArrayList<>();
 
     public SimpleVisitor() {
         variables.put("Write", (Function<Object[], Object>) objects -> {
@@ -46,11 +47,27 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
 
     @Override
     public Object visitAssignment(HerculesParser.AssignmentContext ctx) {
+        final boolean isFinal = ctx.getText().contains("final");
+
         final String varName = ctx.IDENTIFIER().getText();
 
         final Object value = visit(ctx.expression());
 
-        variables.put(varName,value);
+        if(!finalVariables.contains(varName)) {
+            variables.put(varName,value);
+
+            if(isFinal) {
+                finalVariables.add(varName);
+
+                if(ctx.getText().contains("(swallow)")) {
+                    swallowingVariables.add(varName);
+                }
+            }
+        }else {
+            if(!swallowingVariables.contains(varName)) {
+                throw new RuntimeException("Cannot reassign final variable: " + varName);
+            }
+        }
 
         return null;
     }

@@ -15,7 +15,7 @@ public class HerculesMain {
 
     public static void main(String[] args) throws Exception {
         CharStream inputStream = new ANTLRInputStream(new FileInputStream(
-                "C:/Users/finnr/Desktop/Steamwar Development/Project-Hercules/src/main/java/de/zonlykroks/hercules/antlr/test.hc"
+                "C:/Users/finnr/IdeaProjects/Project-Hercules/src/main/java/de/zonlykroks/hercules/antlr/test.hc"
         ));
 
         HerculesLexer lexer = new HerculesLexer(inputStream);

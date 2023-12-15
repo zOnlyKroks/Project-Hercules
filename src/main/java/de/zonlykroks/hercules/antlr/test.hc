@@ -1,5 +1,7 @@
 i = 0;
-name = "John Wick";
+final (swallow) name = "John Wick";
+
+name = "Wick John";
 
 while i < 5 {
     Write("Iteration " + i);
@@ -18,7 +20,6 @@ Write("Result of 3 + 7: " + result);
 product = 4 * 6;
 Write("Result of 4 * 6: " + product);
 
-// Set i to an even value
 i = 6;
 
 isEven = i % 2 == 0;
