@@ -2,13 +2,10 @@ package de.zonlykroks.hercules.visitor;
 
 import de.zonlykroks.hercules.antlr.HerculesBaseVisitor;
 import de.zonlykroks.hercules.antlr.HerculesParser;
-import org.antlr.v4.runtime.tree.ParseTree;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.Console;
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class SimpleVisitor extends HerculesBaseVisitor<Object> {
 
@@ -27,7 +24,6 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
 
     @Override
     public Object visitFunctionCall(HerculesParser.FunctionCallContext ctx) {
-
         final String name = ctx.IDENTIFIER().getText();
 
         final List<Object> args = new ArrayList<>();
@@ -67,6 +63,28 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
             if(!swallowingVariables.contains(varName)) {
                 throw new RuntimeException("Cannot reassign final variable: " + varName);
             }
+        }
+
+        return null;
+    }
+
+    @Override
+    public Object visitIfBlock(HerculesParser.IfBlockContext ctx) {
+        boolean expressionEvaluatesToTrue = isTrue(visit(ctx.expression()));
+
+        if(expressionEvaluatesToTrue) {
+            visit(ctx.block());
+        }else if(ctx.elseIfBlock() != null) {
+            visit(ctx.elseIfBlock());
+        }
+
+        return null;
+    }
+
+    @Override
+    public Object visitElseIfBlock(HerculesParser.ElseIfBlockContext ctx) {
+        if(ctx.block() != null) {
+            return this.visit(ctx.block());
         }
 
         return null;
@@ -188,8 +206,6 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
             }while(condition.apply(visit(ctx.expression())));
         }else if(ctx.elseIfBlock() != null){
             visit(ctx.elseIfBlock());
-        }else if(ctx.block() != null) {
-            visit(ctx.block());
         }
 
        return null;

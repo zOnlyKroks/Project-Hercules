@@ -34,17 +34,17 @@ public interface HerculesVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitIfBlock(HerculesParser.IfBlockContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link HerculesParser#elseIfBlock}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitElseIfBlock(HerculesParser.ElseIfBlockContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link HerculesParser#whileBlock}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitWhileBlock(HerculesParser.WhileBlockContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HerculesParser#elseIfBlock}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitElseIfBlock(HerculesParser.ElseIfBlockContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link HerculesParser#assignment}.
 	 * @param ctx the parse tree

@@ -47,16 +47,6 @@ public interface HerculesListener extends ParseTreeListener {
 	 */
 	void exitIfBlock(HerculesParser.IfBlockContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link HerculesParser#elseIfBlock}.
-	 * @param ctx the parse tree
-	 */
-	void enterElseIfBlock(HerculesParser.ElseIfBlockContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link HerculesParser#elseIfBlock}.
-	 * @param ctx the parse tree
-	 */
-	void exitElseIfBlock(HerculesParser.ElseIfBlockContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link HerculesParser#whileBlock}.
 	 * @param ctx the parse tree
 	 */
@@ -66,6 +56,16 @@ public interface HerculesListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitWhileBlock(HerculesParser.WhileBlockContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link HerculesParser#elseIfBlock}.
+	 * @param ctx the parse tree
+	 */
+	void enterElseIfBlock(HerculesParser.ElseIfBlockContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link HerculesParser#elseIfBlock}.
+	 * @param ctx the parse tree
+	 */
+	void exitElseIfBlock(HerculesParser.ElseIfBlockContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link HerculesParser#assignment}.
 	 * @param ctx the parse tree

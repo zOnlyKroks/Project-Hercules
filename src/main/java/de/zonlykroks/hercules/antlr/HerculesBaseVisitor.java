@@ -45,14 +45,14 @@ public class HerculesBaseVisitor<T> extends AbstractParseTreeVisitor<T> implemen
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitElseIfBlock(HerculesParser.ElseIfBlockContext ctx) { return visitChildren(ctx); }
+	@Override public T visitWhileBlock(HerculesParser.WhileBlockContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitWhileBlock(HerculesParser.WhileBlockContext ctx) { return visitChildren(ctx); }
+	@Override public T visitElseIfBlock(HerculesParser.ElseIfBlockContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *

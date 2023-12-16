@@ -6,13 +6,13 @@ line: statement | ifBlock | whileBlock;
 
 statement: (assignment | functionCall) ';';
 
-ifBlock: 'if' expression block ('else' elseIfBlock);
+ifBlock: 'if' expression block ('else' elseIfBlock)?;
 
-elseIfBlock: block | ifBlock;
-
-whileBlock: WHILE expression block ('else' elseIfBlock);
+whileBlock: WHILE expression block ('else' elseIfBlock)?;
 
 WHILE: 'while' | 'until';
+
+elseIfBlock: block | ifBlock;
 
 assignment: 'final'? '(swallow)'? IDENTIFIER '=' expression;
 

@@ -64,18 +64,6 @@ public class HerculesBaseListener implements HerculesListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterElseIfBlock(HerculesParser.ElseIfBlockContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitElseIfBlock(HerculesParser.ElseIfBlockContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterWhileBlock(HerculesParser.WhileBlockContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -83,6 +71,18 @@ public class HerculesBaseListener implements HerculesListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitWhileBlock(HerculesParser.WhileBlockContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterElseIfBlock(HerculesParser.ElseIfBlockContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitElseIfBlock(HerculesParser.ElseIfBlockContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

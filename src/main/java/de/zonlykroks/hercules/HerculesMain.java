@@ -1,6 +1,5 @@
 package de.zonlykroks.hercules;
 
-import de.zonlykroks.hercules.antlr.HerculesBaseListener;
 import de.zonlykroks.hercules.antlr.HerculesLexer;
 import de.zonlykroks.hercules.antlr.HerculesParser;
 import de.zonlykroks.hercules.visitor.SimpleVisitor;
@@ -15,7 +14,7 @@ public class HerculesMain {
 
     public static void main(String[] args) throws Exception {
         CharStream inputStream = new ANTLRInputStream(new FileInputStream(
-                "C:/Users/finnr/IdeaProjects/Project-Hercules/src/main/java/de/zonlykroks/hercules/antlr/test.hc"
+                "C:/Users/finnr/Desktop/Steamwar Development/Project-Hercules/src/main/java/de/zonlykroks/hercules/antlr/test.hc"
         ));
 
         HerculesLexer lexer = new HerculesLexer(inputStream);
