@@ -2,7 +2,7 @@ grammar Hercules;
 
 program: line* EOF;
 
-line: statement | ifBlock | whileBlock;
+line: statement | ifBlock | whileBlock | methodDecl;
 
 statement: (assignment | functionCall) ';';
 
@@ -17,6 +17,8 @@ elseIfBlock: block | ifBlock;
 assignment: 'final'? '(swallow)'? IDENTIFIER '=' expression;
 
 functionCall: IDENTIFIER '(' (expression (',' expression)*)? ')';
+
+methodDecl: 'def' IDENTIFIER '('? (IDENTIFIER (',' IDENTIFIER)*)? ')'? block;
 
 expression
     :   constant                                #constantExpression

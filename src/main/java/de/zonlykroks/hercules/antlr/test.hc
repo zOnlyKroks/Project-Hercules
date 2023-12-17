@@ -3,6 +3,15 @@ final (swallow) name = "John Wick";
 
 name = "Wick John";
 
+Write("Did the final modifier work: " + name);
+
+//Currently, method params do not work
+def test(x,y) {
+    Write("Method call works");
+}
+
+test()
+
 while i < 6 {
     Write("Iteration " + i);
     i = i + 1;

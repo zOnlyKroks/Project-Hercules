@@ -87,6 +87,26 @@ public interface HerculesListener extends ParseTreeListener {
 	 */
 	void exitFunctionCall(HerculesParser.FunctionCallContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link HerculesParser#methodDecl}.
+	 * @param ctx the parse tree
+	 */
+	void enterMethodDecl(HerculesParser.MethodDeclContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link HerculesParser#methodDecl}.
+	 * @param ctx the parse tree
+	 */
+	void exitMethodDecl(HerculesParser.MethodDeclContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link HerculesParser#comment}.
+	 * @param ctx the parse tree
+	 */
+	void enterComment(HerculesParser.CommentContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link HerculesParser#comment}.
+	 * @param ctx the parse tree
+	 */
+	void exitComment(HerculesParser.CommentContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code compareOpExpression}
 	 * labeled alternative in {@link HerculesParser#expression}.
 	 * @param ctx the parse tree

@@ -13,6 +13,8 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
     private final List<String> finalVariables = new ArrayList<>();
     private final List<String> swallowingVariables = new ArrayList<>();
 
+    private final Map<String, HerculesParser.BlockContext> methods = new Hashtable<>();
+
     public SimpleVisitor() {
         variables.put("Write", (Function<Object[], Object>) objects -> {
             for (Object object : objects) {
@@ -20,6 +22,8 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
             }
             return null;
         });
+
+        finalVariables.add("Write");
     }
 
     @Override
@@ -33,10 +37,25 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
         });
 
         if(variables.containsKey(name)) {
-            if(variables.get(name) instanceof Function<?,?> func) {
-                return ((Function<Object[],Object>) func).apply(args.toArray());
-            }
+            return  ((Function<Object[], Object>) variables.get(name)).apply(args.toArray());
         }
+
+        if(methods.containsKey(name)) {
+            return visit(methods.get(name));
+        }
+
+        throw new RuntimeException("Method " + name + " does not exist, neither as built-in or self declared, check order!");
+    }
+
+    @Override
+    public Object visitMethodDecl(HerculesParser.MethodDeclContext ctx) {
+
+        final String methodName = ctx.IDENTIFIER(0).getText();
+
+        //TODO:
+        //Somehow implement the handling of method parameters, currently we just visit the block and do not give any methods over, nor do we have correct scoping
+
+        methods.put(methodName, ctx.block());
 
         return null;
     }

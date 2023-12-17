@@ -58,6 +58,18 @@ public interface HerculesVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitFunctionCall(HerculesParser.FunctionCallContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link HerculesParser#methodDecl}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMethodDecl(HerculesParser.MethodDeclContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HerculesParser#comment}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitComment(HerculesParser.CommentContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code compareOpExpression}
 	 * labeled alternative in {@link HerculesParser#expression}.
 	 * @param ctx the parse tree
