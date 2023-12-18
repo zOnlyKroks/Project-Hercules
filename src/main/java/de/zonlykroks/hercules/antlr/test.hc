@@ -5,10 +5,10 @@ name = "Wick John";
 
 Write("Did the final modifier work: " + name);
 
-def test(x,y) {
+def test() {
     Write("Method call works");
 
-    def thisWorksSurprisingly(x,y) {
+    def thisWorksSurprisingly() {
         Write("Holy moly!");
     }
 }
@@ -28,6 +28,12 @@ def recursion() {
 }
 
 recursion();
+
+def argTest(x) {
+
+}
+
+argTest();
 
 while i < 6 {
     Write("Iteration " + i);

@@ -13,7 +13,7 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
     private final List<String> finalVariables = new ArrayList<>();
     private final List<String> swallowingVariables = new ArrayList<>();
 
-    private final Map<String, HerculesParser.BlockContext> methods = new Hashtable<>();
+    private final Map<String, MethodImpl> methods = new Hashtable<>();
 
     public SimpleVisitor() {
         variables.put("Write", (Function<Object[], Object>) objects -> {
@@ -41,7 +41,7 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
         }
 
         if(methods.containsKey(name)) {
-            return visit(methods.get(name));
+            return visit(methods.get(name).ctx());
         }
 
         throw new RuntimeException("Method " + name + " does not exist, neither as built-in or self declared, check order!");
@@ -52,10 +52,13 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
 
         final String methodName = ctx.IDENTIFIER(0).getText();
 
-        //TODO:
-        //Somehow implement the handling of method parameters, currently we just visit the block and do not give any methods over, nor do we have correct scoping
+        final List<Object> args = new ArrayList<>();
 
-        methods.put(methodName, ctx.block());
+        for(int i = 1; i < ctx.IDENTIFIER().size(); i++) {
+            args.add(ctx.IDENTIFIER(i).getText());
+        }
+
+        methods.put(methodName, new MethodImpl(args, ctx.block()));
 
         return null;
     }
