@@ -29,15 +29,18 @@ def recursion() {
 
 recursion();
 
-def argTest(x) {
-
-}
-
-argTest();
+Write(true xor true);
 
 while i < 6 {
-    Write("Iteration " + i);
+    Write("While Iteration " + i);
     i = i + 1;
+} else {
+    Write("i is " + i);
+}
+
+until i < 0 {
+    Write("Unless Iteration " + i);
+    i = i - 1;
 } else {
     Write("i is " + i);
 }

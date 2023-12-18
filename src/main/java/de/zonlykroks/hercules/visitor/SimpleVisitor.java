@@ -24,6 +24,55 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
         });
 
         finalVariables.add("Write");
+
+        variables.put("PI", (Function<Object[], Object>) objects -> Math.PI);
+        finalVariables.add("PI");
+
+        variables.put("E", (Function<Object[], Object>) objects -> Math.E);
+        finalVariables.add("E");
+
+        variables.put("TAU", (Function<Object[], Object>) objects -> Math.TAU);
+        finalVariables.add("TAU");
+
+        variables.put("toRadians", (Function<Object[], Object>) objects -> {
+            Object toRadian = objects[0];
+            return Math.toRadians((Double) toRadian);
+        });
+
+        finalVariables.add("toRadians");
+
+        variables.put("toDegrees", (Function<Object[], Object>) objects -> {
+            Object toDegrees = objects[0];
+            return Math.toDegrees((Double) toDegrees);
+        });
+
+        finalVariables.add("toDegrees");
+
+        variables.put("sqrt", (Function<Object[], Object>) objects -> {
+            Object left = objects[0];
+
+            return Math.sqrt((Double) left);
+        });
+
+        finalVariables.add("sqrt");
+
+        variables.put("min", (Function<Object[], Object>) objects -> {
+            Object left = objects[0];
+            Object right = objects[1];
+
+            return Math.min((float) left, (float) right);
+        });
+
+        finalVariables.add("min");
+
+        variables.put("max", (Function<Object[], Object>) objects -> {
+            Object left = objects[0];
+            Object right = objects[1];
+
+            return Math.max((float) left, (float) right);
+        });
+
+        finalVariables.add("max");
     }
 
     @Override
@@ -125,10 +174,11 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
         final Object left = visit(ctx.expression().get(0));
         final Object right = visit(ctx.expression().get(1));
 
-        var op = ctx.addOp().getText();
+        final String op = ctx.addOp().getText();
 
         return switch (op) {
             case "+" : yield add(left, right);
+            case "-" : yield sub(left, right);
             default: throw new IllegalArgumentException("Not implemented");
         };
     }
@@ -142,6 +192,7 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
 
         return switch (op) {
             case "*" : yield mult(left, right);
+            case "/" : yield div(left, right);
             case "%" : yield modulo(left, right);
             default: throw new IllegalArgumentException("Not implemented");
         };
@@ -174,6 +225,46 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
 
         if(right instanceof  String rightString) {
             return left + rightString;
+        }
+
+        return null;
+    }
+
+    private Object div(Object left, Object right) {
+        if (left instanceof Integer leftInt && right instanceof Integer rightInt) {
+            return leftInt / rightInt;
+        }
+
+        if (left instanceof Float leftFloat && right instanceof Float rightFloat) {
+            return leftFloat / rightFloat;
+        }
+
+        if (left instanceof Integer leftInt && right instanceof Float rightFloat) {
+            return leftInt / rightFloat;
+        }
+
+        if (left instanceof Float leftFloat && right instanceof Integer rightInt) {
+            return leftFloat / rightInt;
+        }
+
+        return null;
+    }
+
+    private Object sub(Object left, Object right) {
+        if (left instanceof Integer leftInt && right instanceof Integer rightInt) {
+            return leftInt - rightInt;
+        }
+
+        if (left instanceof Float leftFloat && right instanceof Float rightFloat) {
+            return leftFloat - rightFloat;
+        }
+
+        if (left instanceof Integer leftInt && right instanceof Float rightFloat) {
+            return leftInt - rightFloat;
+        }
+
+        if (left instanceof Float leftFloat && right instanceof Integer rightInt) {
+            return leftFloat - rightInt;
         }
 
         return null;
@@ -251,6 +342,46 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
             default:
                 throw new IllegalStateException("Unexpected value: " + op);
         };
+    }
+
+    @Override
+    public Object visitBoolOpExpression(HerculesParser.BoolOpExpressionContext ctx) {
+        final Object left = visit(ctx.expression(0));
+        final Object right = visit(ctx.expression(1));
+
+        var op = ctx.boolOp().getText();
+
+        return switch(op) {
+            case "and": yield boolAnd(left, right);
+            case "or": yield boolOr(left,right);
+            case "xor": yield boolXor(left, right);
+            default:
+                throw new IllegalArgumentException("Unexpectec value: " + op);
+        };
+    }
+
+    private Object boolAnd(Object left, Object right) {
+        if(left instanceof Boolean leftBool && right instanceof Boolean rightBool) {
+            return leftBool && rightBool;
+        }
+
+        throw new RuntimeException("Left or right not boolean, left: " + left + " , right: " + right);
+    }
+
+    private Object boolOr(Object left, Object right) {
+        if(left instanceof Boolean leftBool && right instanceof Boolean rightBool) {
+            return leftBool || rightBool;
+        }
+
+        throw new RuntimeException("Left or right not boolean, left: " + left + " , right: " + right);
+    }
+
+    private Object boolXor(Object left, Object right) {
+        if(left instanceof Boolean leftBool && right instanceof Boolean rightBool) {
+            return leftBool ^ rightBool;
+        }
+
+        throw new RuntimeException("Left or right not boolean, left: " + left + " , right: " + right);
     }
 
     private boolean isSame(Object left, Object right) {
