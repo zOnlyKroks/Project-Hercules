@@ -5,12 +5,29 @@ name = "Wick John";
 
 Write("Did the final modifier work: " + name);
 
-//Currently, method params do not work
 def test(x,y) {
     Write("Method call works");
+
+    def thisWorksSurprisingly(x,y) {
+        Write("Holy moly!");
+    }
 }
 
-test()
+test();
+
+thisWorksSurprisingly();
+
+j = 0;
+
+def recursion() {
+    Write("Recursion of j is now: " + j);
+    if j != 5 {
+        j = j + 1;
+        recursion();
+    }
+}
+
+recursion();
 
 while i < 6 {
     Write("Iteration " + i);

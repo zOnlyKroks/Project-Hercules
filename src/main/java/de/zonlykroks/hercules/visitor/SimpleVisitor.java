@@ -37,7 +37,7 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
         });
 
         if(variables.containsKey(name)) {
-            return  ((Function<Object[], Object>) variables.get(name)).apply(args.toArray());
+            return ((Function<Object[], Object>) variables.get(name)).apply(args.toArray());
         }
 
         if(methods.containsKey(name)) {
@@ -92,9 +92,9 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
         boolean expressionEvaluatesToTrue = isTrue(visit(ctx.expression()));
 
         if(expressionEvaluatesToTrue) {
-            visit(ctx.block());
+            return visit(ctx.block());
         }else if(ctx.elseIfBlock() != null) {
-            visit(ctx.elseIfBlock());
+            return visit(ctx.elseIfBlock());
         }
 
         return null;
@@ -224,7 +224,7 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
                 visit(ctx.block());
             }while(condition.apply(visit(ctx.expression())));
         }else if(ctx.elseIfBlock() != null){
-            visit(ctx.elseIfBlock());
+            return visit(ctx.elseIfBlock());
         }
 
        return null;
@@ -251,6 +251,7 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
     }
 
     private boolean isSame(Object left, Object right) {
+
         if(left instanceof Integer leftInt && right instanceof Integer rightInt) {
             return leftInt.equals(rightInt);
         }
@@ -270,6 +271,7 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
         if(value instanceof Boolean bool) {
             return bool;
         }
+
         throw new IllegalArgumentException("Could not infer boolean value!");
     }
 
