@@ -13,6 +13,7 @@ import java.io.FileInputStream;
 
 public class HerculesMain {
 
+    @SuppressWarnings("deprecation")
     public static void main(String[] args) throws Exception {
         CharStream inputStream = new ANTLRInputStream(new FileInputStream(
                 "C:/Users/finnr/IdeaProjects/Project-Hercules/src/main/java/de/zonlykroks/hercules/antlr/test.hc"

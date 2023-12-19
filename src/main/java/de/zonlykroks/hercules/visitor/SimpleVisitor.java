@@ -2,14 +2,13 @@ package de.zonlykroks.hercules.visitor;
 
 import de.zonlykroks.hercules.antlr.HerculesBaseVisitor;
 import de.zonlykroks.hercules.antlr.HerculesParser;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Function;
 
 public class SimpleVisitor extends HerculesBaseVisitor<Object> {
 
-    private Scope scope;
+    private final Scope scope;
 
     public SimpleVisitor(Scope scope) {
         this.scope = scope;
@@ -31,6 +30,7 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
         scope.addFinalVariable("exit");
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Object visitFunctionCall(HerculesParser.FunctionCallContext ctx) {
         Scope functionScope = new Scope(this.scope);
@@ -174,7 +174,7 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
         var op = ctx.multOp().getText();
 
         return switch (op) {
-            case "*" : yield mult(left, right);
+            case "*" : yield multi(left, right);
             case "/" : yield div(left, right);
             case "%" : yield modulo(left, right);
             default: throw new IllegalArgumentException("Not implemented");
@@ -261,7 +261,7 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
         return null;
     }
 
-    private Object mult(Object left, Object right) {
+    private Object multi(Object left, Object right) {
         if(left instanceof Integer leftInt && right instanceof Integer rightInt) {
             return leftInt * rightInt;
         }
@@ -324,12 +324,7 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
             case "<" : yield isLessThan(left, right);
             case ">=" : yield isSame(left,right) || !isLessThan(left,right);
             case "<=" : yield isSame(left,right) || isLessThan(left,right);
-            default:final List<Object> args = new ArrayList<>();
-
-                ctx.expression().forEach(expressionContext -> {
-                    Object arg = visit(expressionContext);
-                    args.add(arg);
-                });
+            default:
                 throw new IllegalStateException("Unexpected value: " + op);
         };
     }
@@ -346,7 +341,7 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
             case "or": yield boolOr(left,right);
             case "xor": yield boolXor(left, right);
             default:
-                throw new IllegalArgumentException("Unexpectec value: " + op);
+                throw new IllegalArgumentException("Unexpected value: " + op);
         };
     }
 
