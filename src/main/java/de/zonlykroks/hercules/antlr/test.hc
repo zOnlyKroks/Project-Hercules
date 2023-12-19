@@ -4,19 +4,6 @@ final (swallow) name = "John Wick";
 name = "Wick John";
 
 Write("Did the final modifier work: " + name);
-
-def test() {
-    Write("Method call works");
-
-    def thisWorksSurprisingly() {
-        Write("Holy moly!");
-    }
-}
-
-test();
-
-thisWorksSurprisingly();
-
 j = 0;
 
 def recursion() {
@@ -57,7 +44,42 @@ Write("Result of 3 + 7: " + result);
 product = 4 * 6;
 Write("Result of 4 * 6: " + product);
 
+result2 = 6 / 2;
+Write("Result of 6 / 2: " + result2);
+
 isEven = i % 2 == 0;
 Write("Is i even? " + isEven);
+
+Write("Testing da scope depths");
+
+j = 3;
+
+def pleaseWork() {
+    z = 2;
+    Write(z);
+    Write(j);
+}
+
+pleaseWork();
+
+Write("------");
+Write(z);
+Write(j);
+
+Write("Test 1 succeeded");
+Write("------");
+
+if j == 3 {
+    z = 5;
+    Write(z);
+}
+
+Write(z);
+
+Write("-------");
+
+Write("Test 2 succeeded");
+
+Write("------");
 
 Write("End of script");

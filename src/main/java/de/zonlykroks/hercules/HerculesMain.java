@@ -2,6 +2,7 @@ package de.zonlykroks.hercules;
 
 import de.zonlykroks.hercules.antlr.HerculesLexer;
 import de.zonlykroks.hercules.antlr.HerculesParser;
+import de.zonlykroks.hercules.visitor.Scope;
 import de.zonlykroks.hercules.visitor.SimpleVisitor;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CharStream;
@@ -23,7 +24,7 @@ public class HerculesMain {
 
         ParseTree tree = parser.program();
 
-        SimpleVisitor visitor = new SimpleVisitor();
+        SimpleVisitor visitor = new SimpleVisitor(new Scope(null));
         visitor.visit(tree);
     }
 

@@ -9,74 +9,34 @@ import java.util.function.Function;
 
 public class SimpleVisitor extends HerculesBaseVisitor<Object> {
 
-    private final Map<String, @Nullable Object> variables = new Hashtable<>();
-    private final List<String> finalVariables = new ArrayList<>();
-    private final List<String> swallowingVariables = new ArrayList<>();
+    private Scope scope;
 
-    private final Map<String, MethodImpl> methods = new Hashtable<>();
+    public SimpleVisitor(Scope scope) {
+        this.scope = scope;
 
-    public SimpleVisitor() {
-        variables.put("Write", (Function<Object[], Object>) objects -> {
+        scope.addVariable("Write", (Function<Object[], Object>) objects -> {
             for (Object object : objects) {
                 System.out.println(object);
             }
             return null;
         });
 
-        finalVariables.add("Write");
+        scope.addFinalVariable("Write");
 
-        variables.put("PI", (Function<Object[], Object>) objects -> Math.PI);
-        finalVariables.add("PI");
-
-        variables.put("E", (Function<Object[], Object>) objects -> Math.E);
-        finalVariables.add("E");
-
-        variables.put("TAU", (Function<Object[], Object>) objects -> Math.TAU);
-        finalVariables.add("TAU");
-
-        variables.put("toRadians", (Function<Object[], Object>) objects -> {
-            Object toRadian = objects[0];
-            return Math.toRadians((Double) toRadian);
+        scope.addVariable("exit", (Function<Object[], Object>) objects -> {
+            System.exit(-1);
+            return null;
         });
 
-        finalVariables.add("toRadians");
-
-        variables.put("toDegrees", (Function<Object[], Object>) objects -> {
-            Object toDegrees = objects[0];
-            return Math.toDegrees((Double) toDegrees);
-        });
-
-        finalVariables.add("toDegrees");
-
-        variables.put("sqrt", (Function<Object[], Object>) objects -> {
-            Object left = objects[0];
-
-            return Math.sqrt((Double) left);
-        });
-
-        finalVariables.add("sqrt");
-
-        variables.put("min", (Function<Object[], Object>) objects -> {
-            Object left = objects[0];
-            Object right = objects[1];
-
-            return Math.min((float) left, (float) right);
-        });
-
-        finalVariables.add("min");
-
-        variables.put("max", (Function<Object[], Object>) objects -> {
-            Object left = objects[0];
-            Object right = objects[1];
-
-            return Math.max((float) left, (float) right);
-        });
-
-        finalVariables.add("max");
+        scope.addFinalVariable("exit");
     }
 
     @Override
     public Object visitFunctionCall(HerculesParser.FunctionCallContext ctx) {
+        Scope functionScope = new Scope(this.scope);
+        SimpleVisitor visitor = new SimpleVisitor(functionScope);
+
+
         final String name = ctx.IDENTIFIER().getText();
 
         final List<Object> args = new ArrayList<>();
@@ -85,12 +45,14 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
             args.add(visit(expressionContext));
         });
 
-        if(variables.containsKey(name)) {
-            return ((Function<Object[], Object>) variables.get(name)).apply(args.toArray());
+        if(scope.isVariableVisible(name)) {
+            if(scope.getVariable(name) instanceof Function<?,?>) {
+                return ((Function<Object[], Object>) scope.getVariable(name)).apply(args.toArray());
+            }
         }
 
-        if(methods.containsKey(name)) {
-            return visit(methods.get(name).ctx());
+        if(scope.isFunctionVisible(name)) {
+            return visitor.visit(scope.getMethod(name).ctx());
         }
 
         throw new RuntimeException("Method " + name + " does not exist, neither as built-in or self declared, check order!");
@@ -98,7 +60,6 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
 
     @Override
     public Object visitMethodDecl(HerculesParser.MethodDeclContext ctx) {
-
         final String methodName = ctx.IDENTIFIER(0).getText();
 
         final List<Object> args = new ArrayList<>();
@@ -107,7 +68,7 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
             args.add(ctx.IDENTIFIER(i).getText());
         }
 
-        methods.put(methodName, new MethodImpl(args, ctx.block()));
+        scope.addMethod(methodName, new MethodImpl(args, ctx.block(), args.size()));
 
         return null;
     }
@@ -120,18 +81,18 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
 
         final Object value = visit(ctx.expression());
 
-        if(!finalVariables.contains(varName)) {
-            variables.put(varName,value);
+        if(!scope.isFinalVariable(varName)) {
+            scope.addVariable(varName,value);
 
             if(isFinal) {
-                finalVariables.add(varName);
+                scope.addFinalVariable(varName);
 
                 if(ctx.getText().contains("(swallow)")) {
-                    swallowingVariables.add(varName);
+                    scope.addSwallowingVariable(varName);
                 }
             }
         }else {
-            if(!swallowingVariables.contains(varName)) {
+            if(!scope.containsSwallowingVariable(varName)) {
                 throw new RuntimeException("Cannot reassign final variable: " + varName);
             }
         }
@@ -141,12 +102,15 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
 
     @Override
     public Object visitIfBlock(HerculesParser.IfBlockContext ctx) {
+        Scope ifBlockScope = new Scope(this.scope);
+        SimpleVisitor visitor = new SimpleVisitor(ifBlockScope);
+
         boolean expressionEvaluatesToTrue = isTrue(visit(ctx.expression()));
 
         if(expressionEvaluatesToTrue) {
-            return visit(ctx.block());
+            return visitor.visit(ctx.block());
         }else if(ctx.elseIfBlock() != null) {
-            return visit(ctx.elseIfBlock());
+            return visitor.visit(ctx.elseIfBlock());
         }
 
         return null;
@@ -154,8 +118,12 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
 
     @Override
     public Object visitElseIfBlock(HerculesParser.ElseIfBlockContext ctx) {
+        Scope elseIfBlockScope = new Scope(this.scope);
+        SimpleVisitor visitor = new SimpleVisitor(elseIfBlockScope);
+
+
         if(ctx.block() != null) {
-            return this.visit(ctx.block());
+            return visitor.visit(ctx.block());
         }
 
         return null;
@@ -165,7 +133,11 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
     public Object visitIdentifierExpression(HerculesParser.IdentifierExpressionContext ctx) {
         final String varName = ctx.IDENTIFIER().getText();
 
-        return variables.getOrDefault(varName,null);
+        if(scope.isVariableVisible(varName)) {
+            return scope.getVariable(varName);
+        }
+
+        return null;
     }
 
     @Override
@@ -310,15 +282,17 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
 
     @Override
     public Object visitWhileBlock(HerculesParser.WhileBlockContext ctx) {
+        Scope whileBlockScope = new Scope(this.scope);
+        SimpleVisitor visitor = new SimpleVisitor(whileBlockScope);
 
         Function<Object, Boolean> condition = o -> ctx.WHILE().getText().equals("while") ? isTrue(o) : isFalse(o);
 
         if(condition.apply(visit(ctx.expression()))) {
             do {
-                visit(ctx.block());
-            }while(condition.apply(visit(ctx.expression())));
+                visitor.visit(ctx.block());
+            }while(condition.apply(visitor.visit(ctx.expression())));
         }else if(ctx.elseIfBlock() != null){
-            return visit(ctx.elseIfBlock());
+            return visitor.visit(ctx.elseIfBlock());
         }
 
        return null;
