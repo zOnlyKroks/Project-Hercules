@@ -36,23 +36,34 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
         Scope functionScope = new Scope(this.scope);
         SimpleVisitor visitor = new SimpleVisitor(functionScope);
 
-
         final String name = ctx.IDENTIFIER().getText();
-
-        final List<Object> args = new ArrayList<>();
-
-        ctx.expression().forEach(expressionContext -> {
-            args.add(visit(expressionContext));
-        });
 
         if(scope.isVariableVisible(name)) {
             if(scope.getVariable(name) instanceof Function<?,?>) {
+
+                final List<Object> args = new ArrayList<>();
+
+                ctx.expression().forEach(expressionContext -> {
+                    Object arg = visit(expressionContext);
+                    args.add(arg);
+                });
+
                 return ((Function<Object[], Object>) scope.getVariable(name)).apply(args.toArray());
             }
         }
 
         if(scope.isFunctionVisible(name)) {
-            return visitor.visit(scope.getMethod(name).ctx());
+            MethodImpl impl = scope.getMethod(name);
+
+            if(ctx.expression().size() != impl.argLength()) {
+                throw new RuntimeException("Method " + name + " has a arg length mismatch, provided: " + ctx.expression().size() + " , needed: " + ctx.expression().size());
+            }
+
+            for(int i = 0; i < ctx.expression().size(); i++) {
+                visitor.scope.addVariable(impl.args().get(i), visit(ctx.expression(i)));
+            }
+
+            return visitor.visit(impl.ctx());
         }
 
         throw new RuntimeException("Method " + name + " does not exist, neither as built-in or self declared, check order!");
@@ -62,7 +73,7 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
     public Object visitMethodDecl(HerculesParser.MethodDeclContext ctx) {
         final String methodName = ctx.IDENTIFIER(0).getText();
 
-        final List<Object> args = new ArrayList<>();
+        final List<String> args = new ArrayList<>();
 
         for(int i = 1; i < ctx.IDENTIFIER().size(); i++) {
             args.add(ctx.IDENTIFIER(i).getText());
@@ -313,7 +324,12 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
             case "<" : yield isLessThan(left, right);
             case ">=" : yield isSame(left,right) || !isLessThan(left,right);
             case "<=" : yield isSame(left,right) || isLessThan(left,right);
-            default:
+            default:final List<Object> args = new ArrayList<>();
+
+                ctx.expression().forEach(expressionContext -> {
+                    Object arg = visit(expressionContext);
+                    args.add(arg);
+                });
                 throw new IllegalStateException("Unexpected value: " + op);
         };
     }

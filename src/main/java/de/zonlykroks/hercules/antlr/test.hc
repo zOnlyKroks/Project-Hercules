@@ -82,4 +82,12 @@ Write("Test 2 succeeded");
 
 Write("------");
 
+Write("Arg test");
+
+def argTest(x,y) {
+    Write(x + ":" + y);
+}
+
+argTest(1,3);
+
 Write("End of script");
