@@ -14,7 +14,7 @@ WHILE: 'while' | 'until';
 
 elseIfBlock: block | ifBlock;
 
-assignment: 'final'? '(swallow)'? IDENTIFIER '=' expression;
+assignment: 'final'? 'swallow'? 'global'? IDENTIFIER '=' expression;
 
 functionCall: IDENTIFIER '(' (expression (',' expression)*)? ')';
 

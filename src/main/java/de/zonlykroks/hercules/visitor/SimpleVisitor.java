@@ -1,5 +1,6 @@
 package de.zonlykroks.hercules.visitor;
 
+import de.zonlykroks.hercules.HerculesMain;
 import de.zonlykroks.hercules.antlr.HerculesBaseVisitor;
 import de.zonlykroks.hercules.antlr.HerculesParser;
 
@@ -56,7 +57,7 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
             MethodImpl impl = scope.getMethod(name);
 
             if(ctx.expression().size() != impl.argLength()) {
-                throw new RuntimeException("Method " + name + " has a arg length mismatch, provided: " + ctx.expression().size() + " , needed: " + ctx.expression().size());
+                throw new RuntimeException("Method " + name + " has a arg length mismatch, provided: " + ctx.expression().size() + " , needed: " + impl.argLength());
             }
 
             for(int i = 0; i < ctx.expression().size(); i++) {
@@ -87,18 +88,30 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
     @Override
     public Object visitAssignment(HerculesParser.AssignmentContext ctx) {
         final boolean isFinal = ctx.getText().contains("final");
+        final boolean isGlobal = ctx.getText().contains("global");
+        final boolean isSwallowing = ctx.getText().contains("swallow");
 
         final String varName = ctx.IDENTIFIER().getText();
 
         final Object value = visit(ctx.expression());
 
+        if(isGlobal) {
+            variableAssignmentLogic(HerculesMain.global,varName,value,isFinal,isSwallowing);
+        }else {
+            variableAssignmentLogic(this.scope,varName,value,isFinal,isSwallowing);
+        }
+
+        return null;
+    }
+
+    private void variableAssignmentLogic(Scope scope, String varName, Object value, boolean isFinal, boolean isSwallowing) {
         if(!scope.isFinalVariable(varName)) {
             scope.addVariable(varName,value);
 
             if(isFinal) {
                 scope.addFinalVariable(varName);
 
-                if(ctx.getText().contains("(swallow)")) {
+                if(isSwallowing) {
                     scope.addSwallowingVariable(varName);
                 }
             }
@@ -107,8 +120,6 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
                 throw new RuntimeException("Cannot reassign final variable: " + varName);
             }
         }
-
-        return null;
     }
 
     @Override
@@ -116,7 +127,7 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
         Scope ifBlockScope = new Scope(this.scope);
         SimpleVisitor visitor = new SimpleVisitor(ifBlockScope);
 
-        boolean expressionEvaluatesToTrue = isTrue(visit(ctx.expression()));
+        final boolean expressionEvaluatesToTrue = isTrue(visit(ctx.expression()));
 
         if(expressionEvaluatesToTrue) {
             return visitor.visit(ctx.block());
@@ -131,7 +142,6 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
     public Object visitElseIfBlock(HerculesParser.ElseIfBlockContext ctx) {
         Scope elseIfBlockScope = new Scope(this.scope);
         SimpleVisitor visitor = new SimpleVisitor(elseIfBlockScope);
-
 
         if(ctx.block() != null) {
             return visitor.visit(ctx.block());
@@ -153,13 +163,10 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
 
     @Override
     public Object visitAddOpExpression(HerculesParser.AddOpExpressionContext ctx) {
-
         final Object left = visit(ctx.expression().get(0));
         final Object right = visit(ctx.expression().get(1));
 
-        final String op = ctx.addOp().getText();
-
-        return switch (op) {
+        return switch (ctx.addOp().getText()) {
             case "+" : yield add(left, right);
             case "-" : yield sub(left, right);
             default: throw new IllegalArgumentException("Not implemented");
@@ -171,9 +178,7 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
         final Object left = visit(ctx.expression().get(0));
         final Object right = visit(ctx.expression().get(1));
 
-        var op = ctx.multOp().getText();
-
-        return switch (op) {
+        return switch (ctx.multOp().getText()) {
             case "*" : yield multi(left, right);
             case "/" : yield div(left, right);
             case "%" : yield modulo(left, right);
@@ -271,7 +276,6 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
 
     @Override
     public Object visitConstant(HerculesParser.ConstantContext ctx) {
-
         if(ctx.INTEGER() != null) {
             return Integer.parseInt(ctx.INTEGER().getText());
         }
@@ -296,11 +300,13 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
         Scope whileBlockScope = new Scope(this.scope);
         SimpleVisitor visitor = new SimpleVisitor(whileBlockScope);
 
-        Function<Object, Boolean> condition = o -> ctx.WHILE().getText().equals("while") ? isTrue(o) : isFalse(o);
+        final Function<Object, Boolean> condition = o -> ctx.WHILE().getText().equals("while") ? isTrue(o) : isFalse(o);
 
         if(condition.apply(visit(ctx.expression()))) {
             do {
-                visitor.visit(ctx.block());
+                if(ctx.block() != null) {
+                    visitor.visit(ctx.block());
+                }
             }while(condition.apply(visitor.visit(ctx.expression())));
         }else if(ctx.elseIfBlock() != null){
             return visitor.visit(ctx.elseIfBlock());
@@ -311,11 +317,10 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
 
     @Override
     public Object visitCompareOpExpression(HerculesParser.CompareOpExpressionContext ctx) {
-
         final Object left = visit(ctx.expression().get(0));
         final Object right = visit(ctx.expression().get(1));
 
-        var op = ctx.compareOp().getText();
+        final String op = ctx.compareOp().getText();
 
         return switch (op) {
             case "==" : yield isSame(left, right);
@@ -334,7 +339,7 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
         final Object left = visit(ctx.expression(0));
         final Object right = visit(ctx.expression(1));
 
-        var op = ctx.boolOp().getText();
+        final String op = ctx.boolOp().getText();
 
         return switch(op) {
             case "and": yield boolAnd(left, right);
@@ -370,7 +375,6 @@ public class SimpleVisitor extends HerculesBaseVisitor<Object> {
     }
 
     private boolean isSame(Object left, Object right) {
-
         if(left instanceof Integer leftInt && right instanceof Integer rightInt) {
             return leftInt.equals(rightInt);
         }

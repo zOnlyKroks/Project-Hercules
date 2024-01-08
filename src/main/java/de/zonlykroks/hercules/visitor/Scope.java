@@ -102,5 +102,4 @@ public class Scope {
 
         return visible;
     }
-
 }

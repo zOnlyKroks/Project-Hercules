@@ -1,5 +1,5 @@
 i = 0;
-final (swallow) name = "John Wick";
+final swallow name = "John Wick";
 
 name = "Wick John";
 
@@ -89,5 +89,21 @@ def argTest(x,y) {
 }
 
 argTest(1,3);
+
+Write("------");
+
+Write("----");
+Write("Dubious global variable shenanigans");
+
+def onlyForInitOfGlobalVar() {
+    global xz = "Huh, ig this is cool";
+}
+
+onlyForInitOfGlobalVar();
+
+Write(xz);
+
+Write("----");
+Write("Test 3 finished!");
 
 Write("End of script");

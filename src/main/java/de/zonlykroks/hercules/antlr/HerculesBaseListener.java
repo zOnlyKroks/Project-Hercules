@@ -124,18 +124,6 @@ public class HerculesBaseListener implements HerculesListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterComment(HerculesParser.CommentContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitComment(HerculesParser.CommentContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterCompareOpExpression(HerculesParser.CompareOpExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}

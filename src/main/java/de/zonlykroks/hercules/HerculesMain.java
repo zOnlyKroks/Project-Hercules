@@ -13,10 +13,12 @@ import java.io.FileInputStream;
 
 public class HerculesMain {
 
+    public static final Scope global = new Scope(null);
+
     @SuppressWarnings("deprecation")
     public static void main(String[] args) throws Exception {
         CharStream inputStream = new ANTLRInputStream(new FileInputStream(
-                "C:/Users/finnr/IdeaProjects/Project-Hercules/src/main/java/de/zonlykroks/hercules/antlr/test.hc"
+                "C:/Users/finnr/Desktop/Steamwar Development/Project-Hercules/src/main/java/de/zonlykroks/hercules/antlr/test.hc"
         ));
 
         HerculesLexer lexer = new HerculesLexer(inputStream);
@@ -25,7 +27,7 @@ public class HerculesMain {
 
         ParseTree tree = parser.program();
 
-        SimpleVisitor visitor = new SimpleVisitor(new Scope(null));
+        SimpleVisitor visitor = new SimpleVisitor(global);
         visitor.visit(tree);
     }
 
